@@ -11,19 +11,19 @@ def get_access_token(client_id, client_secret):
     }
 
     headers = {
-        "Content_Type": "application/x-www-form-urlencoded"
+        "Content-Type": "application/x-www-form-urlencoded"
     }
 
     response = requests.post(TOKEN_URL, data=data, headers=headers)
 
     # se status=ok -- retorna o token
     if response.status_code == 200:
-        access_token = response.json()["access_token"]
+        access_token = response.json()
 
         return access_token
 
-    # caso contrário -- retorna o Erro
-    return f"Erro: {response.text}"
+    # caso contrário -- não retorna nada
+    return None
 
 
 def get_artist_name_by_id(artist_id, access_token):

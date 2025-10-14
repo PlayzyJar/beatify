@@ -1,41 +1,49 @@
 from typing import Union
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 import requests
 from api_functions import * 
 from dotenv import load_dotenv
 import os
+import asyncio
+from contextlib import asynccontextmanager
 
 load_dotenv()
 
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
-# id do artista = ex.: king gnu
-# artist_id = "6wxfx1yhyqjCPYwwxJktR2"
 
-# pega o token de acesso
-access_token = get_access_token(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.spotify_token = get_access_token(
+        client_id=CLIENT_ID, 
+        client_secret=CLIENT_SECRET
+    )
 
-# captura informações de um artista usando o token (King Gnu = 6wxfx1yhyqjCPYwwxJktR2)
-# artist_name = get_artist_name_by_id(artist_id=artist_id, access_token=access_token)
+    print("token adquirido com sucesso!")
 
-# print(f"Nome do Artista pelo id: {artist_name}")
+    yield
 
-while True:
-    print("Pesquisar ('' + ENTER para SAIR):")
+    print("servidor encerrado... tenha um bom dia!")
 
-    track_alias = str(input("Nome da música: "))
-    # artist_alias = str(input("Nome do artista: ")) 
 
-    if track_alias == "":
-        break
+async def refresh_token(app: FastAPI):
+    while True:
+        await asyncio.sleep(3300)
+        
+        app.state.spotify_token = get_access_token(
+            client_id=CLIENT_ID, 
+            client_secret=CLIENT_SECRET
+        )
 
-    track_suggestions = search_for_tracks(track_alias, access_token, limit=5)
+        print("spotify token renovado!")
 
-    print("Músicas sugeridas:")
 
-    for track in track_suggestions:
-        print(f"{track['name']} of {track['album']['name']}")
+app = FastAPI(lifespan=lifespan)
 
-print("Programa Encerrado... Tenha um bom dia!")
+@app.get("/token")
+def get_token(request: Request):
+    return (request.app.state.spotify_token)
+
+
 
