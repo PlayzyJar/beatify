@@ -1,7 +1,7 @@
 from typing import Union
 from fastapi import FastAPI, Request
 import requests
-from api_functions import * 
+from app.api.api_functions import * 
 from dotenv import load_dotenv
 import os
 import asyncio
