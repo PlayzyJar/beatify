@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 
 type Track = {
   id?: string;
@@ -18,73 +18,76 @@ export default function HomePage(): JSX.Element {
 
   const PLACEHOLDER = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="; // 1x1 transparent gif
 
-  const handleSearch = useCallback(async () => {
+  useEffect(() => {
     const q = query.trim();
-    if (!q) {
+    // If the query is empty, ensure we show nothing and are not loading.
+    if (q === "") {
       setResults([]);
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `http://localhost:8000/search?q=${encodeURIComponent(q)}`,
-      );
+    // Use an AbortController to cancel in-flight requests when query changes.
+    const controller = new AbortController();
+    const signal = controller.signal;
 
-      if (!res.ok) {
-        console.error("Search request failed:", res.status);
+    async function fetchData() {
+      try {
+        const res = await fetch(
+          `http://localhost:8000/search?q=${encodeURIComponent(q)}`,
+          { signal },
+        );
+
+        if (!res.ok) {
+          console.error("Search request failed:", res.status);
+          setResults([]);
+          setLoading(false);
+          return;
+        }
+
+        const data = await res.json().catch((err) => {
+          console.error("Failed to parse JSON from /search:", err);
+          return null;
+        });
+
+        if (!Array.isArray(data)) {
+          console.warn("Unexpected /search response (expected array):", data);
+          setResults([]);
+        } else {
+          setResults(data);
+        }
+      } catch (err: any) {
+        // If the fetch was aborted, ignore the error (it's expected when query changes).
+        if (err.name === "AbortError") {
+          return;
+        }
+        console.error("Error calling /search:", err);
         setResults([]);
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const data = await res.json().catch((err) => {
-        console.error("Failed to parse JSON from /search:", err);
-        return null;
-      });
-
-      if (!Array.isArray(data)) {
-        console.warn("Unexpected /search response (expected array):", data);
-        setResults([]);
-      } else {
-        setResults(data);
-      }
-    } catch (err) {
-      console.error("Error calling /search:", err);
-      setResults([]);
-    } finally {
-      setLoading(false);
     }
+
+    setLoading(true);
+    fetchData();
+
+    // Cleanup: abort the request when query changes or component unmounts.
+    return () => {
+      controller.abort();
+    };
   }, [query]);
-
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
 
   return (
     <main className="flex flex-col items-center gap-6 w-full max-w-md p-6">
       <div className="w-full flex gap-3">
         <input
+          onChange={(e) => setQuery(e.target.value)}
           aria-label="Pesquisar música"
           className="flex-1 p-3 rounded-xl bg-neutral-800 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500"
           type="text"
           placeholder="Digite o nome da música..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={onKeyDown}
         />
-
-        <button
-          type="button"
-          onClick={handleSearch}
-          disabled={loading}
-          className="w-[100px] p-3 rounded-xl bg-green-600 hover:bg-green-700 transition font-semibold disabled:opacity-60"
-          aria-label="Buscar"
-        >
-          {loading ? "Buscando..." : "Buscar"}
-        </button>
       </div>
 
       {/* RESULTADOS DA PESQUISA */}
