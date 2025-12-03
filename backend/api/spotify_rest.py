@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 import requests
 
 
-def get_access_token(client_id: str, client_secret: str) -> Optional[str]:
+def get_spotify_access_token(client_id: str, client_secret: str) -> Optional[str]:
     """
     Obtains a Spotify Client Credentials access token.
     Returns the token string on success or None on failure.
@@ -16,12 +16,16 @@ def get_access_token(client_id: str, client_secret: str) -> Optional[str]:
             auth=(client_id, client_secret),
             timeout=10,
         )
+
         resp.raise_for_status()
+
         body = resp.json()
+
         return body.get("access_token")
+
     except Exception as exc:
         # Simple logging for development. In production use structured logging.
-        print("[api_functions.get_access_token] error:", exc)
+        print("[api_functions.get_spotify_access_token] error:", exc)
         return None
 
 
