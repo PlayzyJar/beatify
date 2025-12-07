@@ -30,7 +30,7 @@ def get_spotify_access_token(client_id: str, client_secret: str) -> Optional[str
 
 
 def search_for_tracks(
-    track_alias: str, access_token: Optional[str], limit: int = 5, offset: int = 0
+    track_alias: str, access_token: Optional[str], limit: int = 10, offset: int = 0
 ) -> List[Dict]:
     """
     Search tracks on Spotify and return a simplified list of tracks.
@@ -72,7 +72,6 @@ def search_for_tracks(
                     a.get("name") for a in item.get("artists", []) if a.get("name")
                 ),
                 "image": (item.get("album", {}).get("images") or [{}])[0].get("url"),
-                "preview": item.get("preview_url"),
                 "spotifyUrl": item.get("external_urls", {}).get("spotify"),
             }
         )

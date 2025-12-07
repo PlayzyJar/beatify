@@ -47,7 +47,7 @@ def get_osu_access_token(client_id: str, client_secret: str) -> Optional[str]:
 
 
 def search_osu_beatmaps(
-    q: str, access_token: Optional[str], limit: int = 5
+    track: str, artist: str, access_token: Optional[str], limit: int = 5
 ) -> List[Dict]:
     """
     Search beatmaps on osu!and return a simplified list of tracks.
@@ -67,7 +67,7 @@ def search_osu_beatmaps(
         "Authorization": f"Bearer {access_token}",
     }
 
-    params = {"q": q}
+    params = {"q": track}
 
     try:
         resp = requests.get(url, headers=headers, params=params, timeout=10)
@@ -82,19 +82,22 @@ def search_osu_beatmaps(
     simplified_beatmaps: List[Dict] = []
 
     for beatmap in beatmaps:
-        simplified_beatmaps.append(
-            {
-                "title": beatmap["title"],
-                "artist": beatmap["artist"],
-                "creator": beatmap["creator"],
-                "play_count": beatmap["play_count"],
-                "image": beatmap["covers"]["list"],
-                "last_updated": beatmap["last_updated"],
-                "preview_url": beatmap["preview_url"],
-            }
-        )
+        if artist.lower().strip() == beatmap["artist"].lower().strip():
+            simplified_beatmaps.append(
+                {
+                    "title": beatmap["title"],
+                    "artist": beatmap["artist"],
+                    "creator": beatmap["creator"],
+                    "play_count": beatmap["play_count"],
+                    "image": beatmap["covers"]["list"],
+                    "last_updated": beatmap["last_updated"],
+                    "preview_url": beatmap["preview_url"],
+                }
+            )
 
         if len(simplified_beatmaps) >= limit:
             break
+
+    simplified_beatmaps.sort(key=lambda x: x["play_count"], reverse=True)
 
     return simplified_beatmaps

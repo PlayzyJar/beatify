@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+
+import OsuLogo from "../public/osu_logo.png";
 
 type Track = {
   id?: string;
   name: string;
   artist?: string;
   image?: string | null;
-  preview?: string | null;
   spotifyUrl?: string | null;
 };
 
@@ -15,8 +18,7 @@ export default function HomePage(): JSX.Element {
   const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<Track[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
-  const PLACEHOLDER = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="; // 1x1 transparent gif
+  const router = useRouter();
 
   useEffect(() => {
     const q = query.trim();
@@ -54,7 +56,7 @@ export default function HomePage(): JSX.Element {
           console.warn("Unexpected /search response (expected array):", data);
           setResults([]);
         } else {
-          setResults(data);
+          setResults(data); // se der tudo certo, coloca o json dentro de results
         }
       } catch (err: any) {
         // If the fetch was aborted, ignore the error (it's expected when query changes).
@@ -78,65 +80,75 @@ export default function HomePage(): JSX.Element {
   }, [query]);
 
   return (
-    <main className="flex flex-col items-center gap-6 w-full max-w-md p-6">
-      <div className="w-full flex gap-3">
-        <input
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Pesquisar música"
-          className="flex-1 p-3 rounded-xl bg-neutral-800 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-          type="text"
-          placeholder="Digite o nome da música..."
-          value={query}
-        />
-      </div>
+    <div className="justify-center flex flex-col gap-4 items-center w-screen h-screen text-slate-200 py-4">
+      {/*barra de pesquisa*/}
+      <input
+        placeholder="O que você quer tocar?"
+        className="search-bar"
+        onChange={(e) => setQuery(e.target.value)}
+      ></input>
 
-      {/* RESULTADOS DA PESQUISA */}
-      <div className="results">
-        {results.length === 0 && !loading
-          ? null
-          : results.map((track) => (
+      {/*área principal*/}
+      <div className="w-3/8 h-9/10 rounded-md flex flex-col justify-start items-start bg-zinc-900">
+        {/*resultados*/}
+        {results.length > 0 && (
+          <div className="w-full px-4 py-4 h-full flex flex-col justify-center items-center gap-2">
+            {results.slice(0, 5).map((track, i) => (
               <div
-                key={track.id ?? `${track.name}-${track.artist ?? ""}`}
-                className="track"
-                role="button"
-                tabIndex={0}
-                onClick={() => {
-                  // redireciona para a rota de beatmaps passando title e artist como query params
-                  const title = track.name ?? "";
-                  const artist = track.artist ?? "";
-                  const q = `?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
-                  window.location.href = `/osu_beatmaps${q}`;
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const title = track.name ?? "";
-                    const artist = track.artist ?? "";
-                    const q = `?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
-                    window.location.href = `/osu_beatmaps${q}`;
-                  }
-                }}
+                type="button"
+                key={track.id ?? i}
+                className="group relative hover:bg-zinc-800 transition ease-in-out duration-300 hover:scale-102 px-2 w-full h-25 rounded-md grid grid-cols-6 grid-rows-2 gap-2 justify-end items-center bg-zinc-900 text-zinc-100"
               >
-                <img
-                  className="track-image"
-                  src={track.image ?? PLACEHOLDER}
-                  alt={track.name ?? "Capa da música"}
-                  onError={(e) => {
-                    const el = e.currentTarget as HTMLImageElement;
-                    if (el.src !== PLACEHOLDER) el.src = PLACEHOLDER;
-                  }}
-                />
+                <div className="flex justify-center items-center row-span-2 col-1 relative overflow-hidden rounded-md">
+                  <Image
+                    className="group-hover:brightness-50 object-cover transition duration-200 group-hover:scale-102 group-hover: shadow-lg shadow-zinc-900 w-full h-auto row-span-2 col-1 rounded-md"
+                    src={track.image}
+                    alt={track.name}
+                    width={100}
+                    height={100}
+                  />
 
-                <div className="track-info">
-                  <div className="track-name" title={track.name}>
-                    {track.name}
-                  </div>
-                  <div className="track-artist" title={track.artist}>
-                    {track.artist ?? "Artista desconhecido"}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const title = track.name ?? "";
+                      const artist = track.artist ?? "";
+
+                      const q = `?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
+
+                      router.push(`/osu_beatmaps${q}`);
+                    }}
+                    className="
+                    cursor-pointer
+                    opacity-0 group-hover:opacity-100
+                    transition-all duration-200
+                    absolute text-white
+                    p-2 rounded-full shadow-xl
+                    scale-75 group-hover:scale-100
+                  "
+                  >
+                    <Image
+                      className="transition ease-in-out duration-200 group-hover:scale-102"
+                      src={OsuLogo}
+                      alt="osu"
+                      width={50}
+                      height={50}
+                    />
+                  </button>
+                </div>
+
+                <div className="text-xl font-semibold truncate text-overflow-ellipsis row-1 justify-start items-start col-start-2 col-end-7">
+                  {track.name}
+                </div>
+
+                <div className="text-sm truncate text-overflow-ellipsis row-2 justify-start items-end col-start-2 col-end-7">
+                  {track.artist}
                 </div>
               </div>
             ))}
+          </div>
+        )}
       </div>
-    </main>
+    </div>
   );
 }

@@ -228,7 +228,7 @@ def search_musics(q: str):
 
 
 @app.get("/osu_beatmaps")
-def search_beatmaps(q: str):
+def search_beatmaps(track: str, artist: str):
     """
     Endpoint de busca de beatmaps do osu!.
     """
@@ -241,7 +241,8 @@ def search_beatmaps(q: str):
         return []
 
     print(
-        f"/search chamado q={q!r} usando token len={len(access_token) if isinstance(access_token, str) else 'NA'}"
+        f"/search chamado track={track!r} artist={artist!r} usando token len={len(access_token) if isinstance(access_token, str) else 'NA'}"
     )
 
-    return search_osu_beatmaps(q=q, access_token=access_token)
+    return search_osu_beatmaps(track=track, artist=artist, access_token=access_token)
+
