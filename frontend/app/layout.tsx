@@ -2,7 +2,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "BeatBridge",
+  title: "BeatiFy!",
   description: "Encontre beatmaps do osu! pelo Spotify",
 };
 

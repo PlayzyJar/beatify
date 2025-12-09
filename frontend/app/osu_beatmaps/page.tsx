@@ -174,7 +174,7 @@ export default function Beatmaps() {
                     rel="noopener noreferrer"
                     onClick={() => console.log("Download", beatmap.downloadUrl)}
                   >
-                    <div className="group-hover/download:opacity-100 group-hover/download:scale-105 rounded-sm transition-all ease-in-out duration-400 delay-400 absolute text-[12px] flex justify-center items-center opacity-0 peer-hover:opacity-100 text-slate-200  bg-zinc-900 shadow-md shadow-zinc-950 w-20 h-8 bottom-8">
+                    <div className="group-hover/download:opacity-100 group-hover/download:scale-105 rounded-sm transition-all ease-in-out duration-200 delay-100 scale-0 absolute text-[12px] flex justify-center items-center opacity-0 peer-hover:opacity-100 text-slate-200  bg-zinc-900 shadow-md shadow-zinc-950 w-20 h-8 bottom-8">
                       download
                     </div>
 
