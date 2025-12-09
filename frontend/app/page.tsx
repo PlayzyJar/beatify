@@ -82,19 +82,22 @@ export default function HomePage(): JSX.Element {
   }, [query]);
 
   return (
-    <div className="font-torus justify-center flex flex-col gap-4 items-center w-screen h-screen text-slate-200 py-4">
-      {/*barra de pesquisa*/}
-      <input
-        placeholder="O que você quer tocar?"
-        className="search-bar"
-        onChange={(e) => setQuery(e.target.value)}
-      ></input>
+    <div className={`transition-all ease-in-out duration-300 font-torus justify-center grid grid-cols-16 gap-4 ${results.length > 0 ? 'grid-rows-12' : 'grid-rows-1'} items-center w-screen h-screen text-slate-200 py-4`}>
+      {/*header*/}
+      <div className="transition-all ease-in-out duration-300 py-3 px-3 flex justify-start items-center col-start-6 col-end-12 row-span-1 text-zinc-400 w-full h-auto">
+        {/*barra de pesquisa*/}
+        <input
+          placeholder="O que você quer tocar?"
+          className="search-bar"
+          onChange={(e) => setQuery(e.target.value)}
+        ></input>
+      </div>
 
-      {/*área principal*/}
-
-      {/*resultados*/}
+      {/*área de resultados*/}
       {results.length > 0 && (
-        <div className="w-3/8 h-9/10 rounded-md flex flex-col justify-start items-start bg-zinc-900">
+        // area principal
+        <div className="w-full h-full rounded-md flex flex-col row-span-11 col-start-6 col-end-12 justify-start items-start bg-zinc-900">
+          {/*resultados*/}
           <div className="w-full px-4 py-4 h-full flex flex-col justify-start items-center gap-1">
             <h1 className="py-2 px-2 font-semibold w-full text-4xl">Músicas</h1>
             {results.slice(0, 5).map((track, i) => (
@@ -104,7 +107,7 @@ export default function HomePage(): JSX.Element {
               >
                 <div className="flex justify-center items-center row-span-2 col-1 relative overflow-hidden rounded-md">
                   <Image
-                    className="group-hover:brightness-50 object-cover transition duration-200 group-hover:scale-102 group-hover: shadow-lg shadow-zinc-900 w-full h-auto row-span-2 col-1 rounded-md"
+                    className="group-hover:brightness-50 group-hover:blur-[2px] object-cover transition duration-200 group-hover:scale-102 group-hover: shadow-lg shadow-zinc-900 w-full h-auto row-span-2 col-1 rounded-md"
                     src={track.image}
                     alt={track.name}
                     width={100}

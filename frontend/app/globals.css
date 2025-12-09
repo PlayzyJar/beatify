@@ -4,7 +4,8 @@
     .search-bar {
         @apply bg-zinc-800
             text-gray-300
-            w-2/6
+            w-full
+            h-12
             px-5 py-3
             rounded-full
             outline-none

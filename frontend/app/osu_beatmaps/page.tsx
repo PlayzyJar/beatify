@@ -2,8 +2,11 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileArrowDown } from "@fortawesome/free-solid-svg-icons";
-import { useSearchParams } from "next/navigation";
+import {
+  faFileArrowDown,
+  faAngleLeft,
+} from "@fortawesome/free-solid-svg-icons";
+import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 
 import OsuLogo from "../../public/osu_logo.png";
@@ -31,6 +34,8 @@ export default function Beatmaps() {
 
   const [playingId, setPlayingId] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const router = useRouter();
 
   function handlePlay(id: number, url: string) {
     if (audioRef.current) {
@@ -76,13 +81,33 @@ export default function Beatmaps() {
   }, [title, artist]);
 
   return (
-    <div className="font-torus justify-center flex flex-col gap-4 items-center w-screen h-screen text-slate-200 py-4">
-      {/*área principal*/}
+    <div className="font-torus justify-center grid grid-rows-12 grid-cols-16 gap-4 items-center w-screen h-screen text-slate-200 py-4">
+      {/*header*/}
+      <div className="py-3 px-3 flex justify-start items-center col-start-6 col-end-12 row-span-1 text-zinc-400 w-full h-auto">
+        {/*botão de voltar*/}
+        <button
+          type="button"
+          className="hover:bg-zinc-800 hover:cursor-pointer pl-3 pr-6 w-10 h-12 rounded-full hover:w-25 group/back relative flex justify-start transition-all ease-in-out duration-250 items-center"
+          onClick={() => router.back()}
+        >
+          <FontAwesomeIcon
+            className="transition-all  group-hover/back:text-zinc-300 ease-in-out duration-300 grouphover/back:scale-110"
+            icon={faAngleLeft}
+            size="xl"
+          />
 
+          <div>
+            <span className="text-zinc-400 scale-70 group-hover/back:opacity-100 group-hover/back:scale-100 opacity-0 transition-all ease-in-out duration-200">
+              Back
+            </span>
+          </div>
+        </button>
+      </div>
       {/*resultados*/}
       {beatmaps.length > 0 && (
-        <div className="w-3/8 h-9/10 rounded-md flex flex-col justify-start items-start bg-zinc-900">
-          <div className="w-full px-4 py-4 h-full flex flex-col justify-center items-center gap-2">
+        // area principal
+        <div className="w-full h-full rounded-md flex flex-col row-span-11 col-start-6 col-end-12 justify-start items-start bg-zinc-900">
+          <div className="w-full px-4 py-4 h-full flex flex-col justify-start items-start gap-2">
             <h1 className="py-2 px-2 font-semibold w-full text-4xl">
               Beatmaps
             </h1>
@@ -139,6 +164,7 @@ export default function Beatmaps() {
                   </div>
                 </div>
 
+                {/*botão de download*/}
                 <div className="px-2 flex justify-end items-center col-5 row-span-5 text-zinc-400 w-full h-full">
                   <a
                     href={beatmap.download_url}
